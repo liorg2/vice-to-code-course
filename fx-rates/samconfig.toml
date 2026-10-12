@@ -1,0 +1,10 @@
+version = 0.1
+
+[staging.deploy.parameters]
+stack_name = "fx-rates-staging"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+parameter_overrides = "AlarmEmail=replace-me@example.com"
+tags = "project=\"fx\""

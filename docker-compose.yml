@@ -1,0 +1,27 @@
+services:
+  nest-egg:
+    build: ./nest-egg
+    ports:
+      - "3000:3000"
+    volumes:
+      - nest-data:/app/data
+  pocket-crm:
+    build: ./pocket-crm
+    ports:
+      - "3001:3000"
+    volumes:
+      - crm-data:/app/data
+  fx-rates:
+    build: ./fx-rates
+    ports:
+      - "3002:3000"
+    environment:
+      PORT: "3000"
+  pocket-rates:
+    build: ./pocket-rates
+    ports:
+      - "8081:8081"
+
+volumes:
+  nest-data:
+  crm-data:

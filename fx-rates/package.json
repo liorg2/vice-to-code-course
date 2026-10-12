@@ -1,0 +1,26 @@
+{
+  "name": "fx-rates",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Forex Rates API lab: local service, OpenAPI contract, and an AWS SAM template.",
+  "scripts": {
+    "check": "tsc --noEmit && eslint . && node --experimental-strip-types --test \"test/**/*.test.ts\"",
+    "start": "node --experimental-strip-types src/server.ts",
+    "try": "node --experimental-strip-types src/try.ts",
+    "whoami": "node --experimental-strip-types src/whoami.ts",
+    "create-key": "node --experimental-strip-types src/create-key.ts",
+    "disable-key": "node --experimental-strip-types src/disable-key.ts",
+    "validate-template": "node --experimental-strip-types src/validate-template.ts"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/node": "^24.5.2",
+    "eslint": "^9.36.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.0"
+  }
+}

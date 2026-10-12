@@ -1,0 +1,110 @@
+openapi: 3.0.3
+info:
+  title: Forex Rates API
+  version: 1.0.0
+  description: Public exchange rates cached from Frankfurter. Money results are rounded half away from zero to 2 decimal places.
+paths:
+  /v1/health:
+    get:
+      summary: Liveness
+      responses:
+        "200":
+          description: The process is up
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /v1/rates:
+    get:
+      summary: Latest cached rates
+      parameters:
+        - in: query
+          name: base
+          schema: { type: string, pattern: "^[A-Z]{3}$" }
+        - in: query
+          name: symbols
+          required: true
+          schema: { type: string }
+        - in: header
+          name: x-api-key
+          schema: { type: string }
+      responses:
+        "200":
+          description: Rates
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [base, date, rates, stale]
+                properties:
+                  base: { type: string }
+                  date: { type: string }
+                  rates:
+                    type: object
+                    additionalProperties: { type: number }
+                  stale: { type: boolean }
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "502":
+          $ref: "#/components/responses/Error"
+  /v1/convert:
+    get:
+      summary: Convert an amount
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema: { type: string }
+        - in: query
+          name: to
+          required: true
+          schema: { type: string }
+        - in: query
+          name: amount
+          required: true
+          schema: { type: number }
+        - in: header
+          name: x-api-key
+          schema: { type: string }
+      responses:
+        "200":
+          description: Conversion
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [from, to, amount, rate, result, date]
+                properties:
+                  from: { type: string }
+                  to: { type: string }
+                  amount: { type: number }
+                  rate: { type: number }
+                  result: { type: number }
+                  date: { type: string }
+        "400":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+components:
+  responses:
+    Error:
+      description: One error shape for every failure
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error:
+                type: object
+                required: [code, message]
+                properties:
+                  code: { type: string }
+                  message: { type: string }
