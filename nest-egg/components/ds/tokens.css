@@ -1,0 +1,76 @@
+:root {
+  --background: #f3f6f8;
+  --foreground: #15202b;
+  --card: #ffffff;
+  --card-foreground: #15202b;
+  --popover: #ffffff;
+  --popover-foreground: #15202b;
+  --primary: #0f766e;
+  --primary-foreground: #f4fffd;
+  --secondary: #e8eef2;
+  --secondary-foreground: #243447;
+  --muted: #e8eef2;
+  --muted-foreground: #5b6b7c;
+  --accent: #dff3ef;
+  --accent-foreground: #0f766e;
+  --destructive: #c2410c;
+  --destructive-foreground: #fff7ed;
+  --border: #d5dee6;
+  --input: #d5dee6;
+  --ring: #0f766e;
+  --success: #15803d;
+  --warning: #b45309;
+  --radius: 0.875rem;
+  --shadow: 0 10px 30px rgba(21, 32, 43, 0.06);
+  --shell: radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.1), transparent 28%),
+    linear-gradient(180deg, #f7fafb 0%, #eef3f6 100%);
+}
+
+:root[data-theme="dark"],
+.dark {
+  --background: #0f1720;
+  --foreground: #e8eef4;
+  --card: #17212b;
+  --card-foreground: #e8eef4;
+  --popover: #17212b;
+  --popover-foreground: #e8eef4;
+  --primary: #2dd4bf;
+  --primary-foreground: #042f2e;
+  --secondary: #243140;
+  --secondary-foreground: #e8eef4;
+  --muted: #243140;
+  --muted-foreground: #9aafc0;
+  --accent: #1d3a3a;
+  --accent-foreground: #99f6e4;
+  --destructive: #fb923c;
+  --destructive-foreground: #431407;
+  --border: #2a3a4a;
+  --input: #2a3a4a;
+  --ring: #2dd4bf;
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  --shell: radial-gradient(circle at top left, rgba(45, 212, 191, 0.14), transparent 34%),
+    linear-gradient(180deg, #101820 0%, #0c1218 100%);
+}
+
+:root[data-brand="crm"] {
+  --primary: #0369a1;
+  --primary-foreground: #f0f9ff;
+  --accent: #e0f2fe;
+  --accent-foreground: #0369a1;
+  --ring: #0369a1;
+  --shell: radial-gradient(circle at top left, rgba(3, 105, 161, 0.12), transparent 34%),
+    radial-gradient(circle at 90% 10%, rgba(244, 114, 182, 0.1), transparent 26%),
+    linear-gradient(180deg, #f8fafc 0%, #eef5fa 100%);
+}
+
+:root[data-brand="crm"][data-theme="dark"],
+.dark[data-brand="crm"] {
+  --primary: #38bdf8;
+  --primary-foreground: #082f49;
+  --accent: #0c4a6e;
+  --accent-foreground: #bae6fd;
+  --ring: #38bdf8;
+  --shell: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 34%),
+    linear-gradient(180deg, #0b1520 0%, #091018 100%);
+}

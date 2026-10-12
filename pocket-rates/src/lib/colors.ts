@@ -1,6 +1,20 @@
 export const palette = {
-  light: { background: "#f4f7fb", text: "#142033", card: "#ffffff", muted: "#4d5b70", accent: "#1d4e89" },
-  dark: { background: "#10141c", text: "#f4f7fb", card: "#1c2430", muted: "#b7c3d4", accent: "#8eb7e8" },
+  light: {
+    background: "#f3f6f8",
+    text: "#15202b",
+    card: "#ffffff",
+    muted: "#5b6b7c",
+    accent: "#0f766e",
+    chip: "#0369a1",
+  },
+  dark: {
+    background: "#0f1720",
+    text: "#e8eef4",
+    card: "#17212b",
+    muted: "#9aafc0",
+    accent: "#2dd4bf",
+    chip: "#38bdf8",
+  },
 } as const;
 
 export function colorsFor(scheme: string | null | undefined) {

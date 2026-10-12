@@ -6,7 +6,7 @@ export default function AppTabs() {
   const colors = colorsFor(useColorScheme());
 
   return (
-    <NativeTabs backgroundColor={colors.background} labelStyle={{ selected: { color: colors.text } }}>
+    <NativeTabs backgroundColor={colors.card} indicatorColor={colors.accent} labelStyle={{ selected: { color: colors.accent } }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Convert</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>

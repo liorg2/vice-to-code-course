@@ -8,8 +8,10 @@ export default function ConvertScreen() {
   const colors = colorsFor(scheme);
   const rates = useRates();
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, gap: 12, backgroundColor: colors.background }} keyboardShouldPersistTaps="handled">
-      <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 32, fontWeight: "700" }}>Pocket Rates</Text>
+    <ScrollView contentContainerStyle={{ padding: 20, gap: 12, backgroundColor: colors.background, minHeight: "100%" }} keyboardShouldPersistTaps="handled">
+      <View style={{ backgroundColor: colors.accent, borderRadius: 20, padding: 16 }}>
+        <Text accessibilityRole="header" style={{ color: "#fffaf3", fontSize: 32, fontWeight: "700" }}>Pocket Rates</Text>
+      </View>
       <Text style={{ color: colors.muted }}>{rates.status === "loading" ? "Loading rates" : rates.note}</Text>
       {rates.slow ? <Text style={{ color: colors.muted }}>Rates are loading slowly</Text> : null}
       <Field label="From" value={rates.from} onChange={rates.setFrom} colors={colors} choices={rates.currencies} />
@@ -41,8 +43,8 @@ function Field({ label, value, onChange, colors, choices }: { label: string; val
       <Text style={{ color: colors.text }}>{label}</Text>
       <ScrollView horizontal contentContainerStyle={{ gap: 8, paddingVertical: 8 }}>
         {choices.slice(0, 12).map((code) => (
-          <Pressable key={code} accessibilityRole="button" accessibilityLabel={`${label} ${code}`} onPress={() => onChange(code)} style={{ minHeight: 44, minWidth: 64, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: value === code ? colors.accent : colors.card }}>
-            <Text style={{ color: value === code ? colors.background : colors.text }}>{code}</Text>
+          <Pressable key={code} accessibilityRole="button" accessibilityLabel={`${label} ${code}`} onPress={() => onChange(code)} style={{ minHeight: 44, minWidth: 64, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: value === code ? colors.chip : colors.card }}>
+            <Text style={{ color: value === code ? "#ffffff" : colors.text }}>{code}</Text>
           </Pressable>
         ))}
       </ScrollView>
