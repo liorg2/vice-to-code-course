@@ -53,7 +53,7 @@ const page = `<!doctype html>
 </head>
 <body>
   <main>
-    <span class="badge">Lab design system</span>
+    <span class="badge">API · Mantine palette</span>
     <h1>Forex Rates</h1>
     <p>A small public exchange-rate API. Try a live call:</p>
     <a href="/v1/rates?base=USD&amp;symbols=EUR,ILS">USD to EUR and ILS</a>

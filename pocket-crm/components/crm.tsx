@@ -1,21 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import type { Activity, Contact, Deal, Stage } from "@/lib/model";
 import {
   Badge,
   Button,
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Field,
-  Input,
-  Page,
+  Container,
+  Grid,
+  Group,
   Select,
-  Shell,
-} from "@/components/ds";
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import type { Activity, Contact, Deal, Stage } from "@/lib/model";
 
 type Payload = {
   me: { name: string; email: string };
@@ -89,32 +89,22 @@ export function Crm() {
 
   if (!data) {
     return (
-      <Shell>
-        <Page className="max-w-md justify-center py-16">
-          <Card>
-            <CardHeader>
-              <Badge>Practice contacts</Badge>
-              <CardTitle className="text-3xl">Pocket CRM</CardTitle>
-              <CardDescription>Nothing here is a real customer.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={signIn} className="flex flex-col gap-3">
-                <Field label="Email">
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Email" />
-                </Field>
-                <Field label="Password">
-                  <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-label="Password" />
-                </Field>
-                <Button type="submit">Sign in</Button>
-                {error ? <p className="text-sm text-[var(--destructive)]">{error}</p> : null}
-              </form>
-              <p className="mt-4 text-sm text-[var(--muted-foreground)]">
-                a@example.test / crm-a · b@example.test / crm-b
-              </p>
-            </CardContent>
-          </Card>
-        </Page>
-      </Shell>
+      <Container size="xs" py={80}>
+        <Card shadow="sm" padding="xl" radius="md" withBorder>
+          <Badge mb="sm">Practice contacts · Mantine</Badge>
+          <Title order={1} mb="xs">Pocket CRM</Title>
+          <Text c="dimmed" mb="lg">Nothing here is a real customer.</Text>
+          <form onSubmit={signIn}>
+            <Stack>
+              <TextInput label="Email" type="email" value={email} onChange={(e) => setEmail(e.currentTarget.value)} />
+              <TextInput label="Password" type="password" value={password} onChange={(e) => setPassword(e.currentTarget.value)} />
+              <Button type="submit">Sign in</Button>
+              {error ? <Text c="red">{error}</Text> : null}
+            </Stack>
+          </form>
+          <Text size="sm" c="dimmed" mt="md">a@example.test / crm-a · b@example.test / crm-b</Text>
+        </Card>
+      </Container>
     );
   }
 
@@ -124,22 +114,21 @@ export function Crm() {
   const selected = data.contacts.find((contact) => contact.id === open);
 
   return (
-    <Shell>
-      <Page className="max-w-6xl">
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-5">
+    <Container size="xl" py="xl">
+      <Stack gap="md">
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Group justify="space-between">
             <div>
-              <p className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Pocket CRM</p>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+              <Title order={1}>Pocket CRM</Title>
+              <Text size="sm" c="dimmed" mt={4}>
                 Signed in as {data.me.name}.{" "}
                 {process.env.NEXT_PUBLIC_SUPABASE_URL
                   ? "Supabase is connected."
                   : "Local practice file until Supabase env vars exist."}
-              </p>
+              </Text>
             </div>
             <Button
-              variant="secondary"
-              type="button"
+              variant="light"
               onClick={async () => {
                 await api("DELETE");
                 setData(null);
@@ -147,122 +136,92 @@ export function Crm() {
             >
               Sign out
             </Button>
-          </CardContent>
+          </Group>
         </Card>
 
-        <section className="grid gap-3 sm:grid-cols-3">
+        <SimpleGrid cols={{ base: 1, sm: 3 }}>
           <Stat title="Open deals" value={`$${(openDeals.reduce((s, d) => s + d.valueCents, 0) / 100).toLocaleString()}`} />
           <Stat title="Won" value={`$${(won / 100).toLocaleString()}`} />
           <Stat title="Open tasks" value={String(tasks.length)} />
-        </section>
+        </SimpleGrid>
 
-        <Card>
-          <CardContent className="flex flex-wrap gap-2 py-4">
-            <Input
-              className="min-w-[12rem] flex-1"
-              placeholder="Search contacts"
-              aria-label="Search contacts"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <Input placeholder="Tag" aria-label="Tag filter" value={tag} onChange={(e) => setTag(e.target.value)} />
-            <Button variant="outline" type="button" onClick={() => setSearching(true)}>
-              Search (Ctrl+K)
-            </Button>
-          </CardContent>
+        <Card shadow="sm" padding="md" radius="md" withBorder>
+          <Group>
+            <TextInput style={{ flex: 1 }} placeholder="Search contacts" value={query} onChange={(e) => setQuery(e.currentTarget.value)} />
+            <TextInput placeholder="Tag" value={tag} onChange={(e) => setTag(e.currentTarget.value)} />
+            <Button variant="default" onClick={() => setSearching(true)}>Search (Ctrl+K)</Button>
+          </Group>
         </Card>
 
         {searching ? (
-          <Card>
-            <CardContent className="py-4">
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  setSearching(false);
-                }}
-              >
-                <Input autoFocus aria-label="Quick search" value={query} onChange={(e) => setQuery(e.target.value)} />
-              </form>
-            </CardContent>
+          <Card withBorder padding="md" radius="md">
+            <TextInput autoFocus label="Quick search" value={query} onChange={(e) => setQuery(e.currentTarget.value)} onKeyDown={(e) => e.key === "Enter" && setSearching(false)} />
           </Card>
         ) : null}
 
         <AddContact onAdded={load} onError={setError} />
-        {error ? <p className="text-sm text-[var(--destructive)]">{error}</p> : null}
+        {error ? <Text c="red">{error}</Text> : null}
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Contacts</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              {contacts.map((contact) => (
-                <Button
-                  key={contact.id}
-                  variant={open === contact.id ? "default" : "outline"}
-                  className="justify-start"
-                  type="button"
-                  onClick={() => setOpen(contact.id)}
-                >
-                  {contact.name} · {contact.company}
-                </Button>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Deals</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Grid>
+          <Grid.Col span={{ base: 12, md: 6 }}>
+            <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+              <Title order={3} mb="md">Contacts</Title>
+              <Stack gap="xs">
+                {contacts.map((contact) => (
+                  <Button
+                    key={contact.id}
+                    variant={open === contact.id ? "filled" : "light"}
+                    justify="flex-start"
+                    onClick={() => setOpen(contact.id)}
+                  >
+                    {contact.name} · {contact.company}
+                  </Button>
+                ))}
+              </Stack>
+            </Card>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, md: 6 }}>
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Title order={3} mb="md">Deals</Title>
               {STAGES.map((stage) => (
-                <div key={stage} className="mt-3 first:mt-0">
-                  <Badge className="mb-2 capitalize">{stage}</Badge>
+                <div key={stage}>
+                  <Badge mb="xs" mt="sm" tt="capitalize">{stage}</Badge>
                   {data.deals
                     .filter((deal) => deal.stage === stage)
                     .map((deal) => (
-                      <div
-                        key={deal.id}
-                        className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-[calc(var(--radius)-4px)] border border-[var(--border)] px-3 py-2"
-                      >
-                        <span className="text-sm">{deal.title}</span>
+                      <Group key={deal.id} justify="space-between" mb="xs" p="xs" style={{ border: "1px solid var(--mantine-color-gray-3)", borderRadius: 8 }}>
+                        <Text size="sm">{deal.title}</Text>
                         <Select
+                          size="xs"
+                          w={140}
                           aria-label={`Move ${deal.title}`}
+                          data={STAGES}
                           value={deal.stage}
-                          onChange={async (event) => {
-                            await api("PATCH", {
-                              method: "PATCH",
-                              path: `/deals/${deal.id}`,
-                              body: { stage: event.target.value },
-                            });
+                          onChange={async (value) => {
+                            if (!value) return;
+                            await api("PATCH", { method: "PATCH", path: `/deals/${deal.id}`, body: { stage: value } });
                             await load();
                           }}
-                        >
-                          {STAGES.map((item) => (
-                            <option key={item}>{item}</option>
-                          ))}
-                        </Select>
-                      </div>
+                        />
+                      </Group>
                     ))}
                 </div>
               ))}
-            </CardContent>
-          </Card>
-        </div>
+            </Card>
+          </Grid.Col>
+        </Grid>
 
         {selected ? <ContactCard contact={selected} deals={data.deals} activities={data.activities} onChanged={load} /> : null}
-      </Page>
-    </Shell>
+      </Stack>
+    </Container>
   );
 }
 
 function Stat({ title, value }: { title: string; value: string }) {
   return (
-    <Card>
-      <CardContent className="py-5">
-        <p className="text-sm text-[var(--muted-foreground)]">{title}</p>
-        <p className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">{value}</p>
-      </CardContent>
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Text size="sm" c="dimmed">{title}</Text>
+      <Title order={2}>{value}</Title>
     </Card>
   );
 }
@@ -270,12 +229,17 @@ function Stat({ title, value }: { title: string; value: string }) {
 function AddContact({ onAdded, onError }: { onAdded: () => Promise<void>; onError: (msg: string) => void }) {
   const [name, setName] = useState("");
   return (
-    <Card>
-      <CardContent className="py-4">
-        <form
-          className="flex gap-2"
-          onSubmit={async (event) => {
-            event.preventDefault();
+    <Card shadow="sm" padding="md" radius="md" withBorder>
+      <Group align="flex-end">
+        <TextInput
+          style={{ flex: 1 }}
+          label="New contact"
+          value={name}
+          onChange={(e) => setName(e.currentTarget.value)}
+          placeholder="Name"
+        />
+        <Button
+          onClick={async () => {
             const result = await api("PATCH", { method: "POST", path: "/contacts", body: { name, tags: [] } });
             if (!result.ok) onError(result.payload?.errors?.name ?? "Could not add");
             else {
@@ -284,10 +248,9 @@ function AddContact({ onAdded, onError }: { onAdded: () => Promise<void>; onErro
             }
           }}
         >
-          <Input aria-label="New contact name" value={name} onChange={(e) => setName(e.target.value)} placeholder="New contact" />
-          <Button type="submit">Add</Button>
-        </form>
-      </CardContent>
+          Add
+        </Button>
+      </Group>
     </Card>
   );
 }
@@ -304,50 +267,31 @@ function ContactCard({
   onChanged: () => Promise<void>;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{contact.name}</CardTitle>
-        <CardDescription>
-          {contact.email} · {contact.phone} · {contact.company}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <h3 className="mb-1 text-sm font-semibold">Deals</h3>
-          <ul className="text-sm text-[var(--muted-foreground)]">
-            {deals
-              .filter((deal) => deal.contactId === contact.id)
-              .map((deal) => (
-                <li key={deal.id}>
-                  {deal.title} · {deal.stage}
-                </li>
-              ))}
-          </ul>
-        </div>
-        <div>
-          <h3 className="mb-1 text-sm font-semibold">Timeline</h3>
-          <ul className="text-sm text-[var(--muted-foreground)]">
-            {activities
-              .filter((item) => item.contactId === contact.id)
-              .map((item) => (
-                <li key={item.id}>
-                  {item.kind}: {item.body}
-                </li>
-              ))}
-          </ul>
-        </div>
-        <Button
-          variant="destructive"
-          type="button"
-          onClick={async () => {
-            if (!window.confirm(`Delete ${contact.name}?`)) return;
-            await api("PATCH", { method: "DELETE", path: `/contacts/${contact.id}` });
-            await onChanged();
-          }}
-        >
-          Delete contact
-        </Button>
-      </CardContent>
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Title order={3}>{contact.name}</Title>
+      <Text c="dimmed" size="sm" mb="md">
+        {contact.email} · {contact.phone} · {contact.company}
+      </Text>
+      <Text fw={600} size="sm">Deals</Text>
+      {deals.filter((deal) => deal.contactId === contact.id).map((deal) => (
+        <Text key={deal.id} size="sm" c="dimmed">{deal.title} · {deal.stage}</Text>
+      ))}
+      <Text fw={600} size="sm" mt="md">Timeline</Text>
+      {activities.filter((item) => item.contactId === contact.id).map((item) => (
+        <Text key={item.id} size="sm" c="dimmed">{item.kind}: {item.body}</Text>
+      ))}
+      <Button
+        color="red"
+        variant="light"
+        mt="md"
+        onClick={async () => {
+          if (!window.confirm(`Delete ${contact.name}?`)) return;
+          await api("PATCH", { method: "DELETE", path: `/contacts/${contact.id}` });
+          await onChanged();
+        }}
+      >
+        Delete contact
+      </Button>
     </Card>
   );
 }

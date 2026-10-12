@@ -1,22 +1,25 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { formatUSD } from "@/lib/money";
-import { kidCurve, moneyLastsUntil, project } from "@/lib/project";
-import type { Household, Plan } from "@/lib/model";
 import {
   Badge,
   Button,
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Field,
-  Input,
-  Page,
-  Shell,
-} from "@/components/ds";
+  Container,
+  Group,
+  NumberInput,
+  Paper,
+  SegmentedControl,
+  Slider,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+  useMantineColorScheme,
+} from "@mantine/core";
+import { formatUSD } from "@/lib/money";
+import { kidCurve, moneyLastsUntil, project } from "@/lib/project";
+import type { Household, Plan } from "@/lib/model";
 
 type Bundle = {
   me: { email: string; role: string };
@@ -43,6 +46,7 @@ export function Workspace() {
   const [error, setError] = useState("");
   const [email, setEmail] = useState("a@example.test");
   const [password, setPassword] = useState("nest-a");
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   async function refresh() {
     const session = await send("/api/session", "GET");
@@ -60,7 +64,6 @@ export function Workspace() {
       .then(async (response) => {
         const body = (await response.json()) as { status?: string; timestamp?: string };
         setHealth(response.ok && body.status === "ok" ? `up ${body.timestamp}` : "server error");
-        console.log(`browser health ${body.status}`);
       })
       .catch(() => setHealth("unreachable"));
   }, []);
@@ -78,61 +81,45 @@ export function Workspace() {
 
   if (!bundle) {
     return (
-      <Shell>
-        <Page className="max-w-md justify-center py-16">
-          <Card>
-            <CardHeader>
-              <Badge>Practice data</Badge>
-              <CardTitle className="text-3xl">Nest Egg</CardTitle>
-              <CardDescription>A projection, not financial advice. Sign in with a sample household.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={signIn} className="flex flex-col gap-3">
-                <Field label="Email">
-                  <Input type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Email" />
-                </Field>
-                <Field label="Password">
-                  <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-label="Password" />
-                </Field>
-                <Button type="submit">Sign in</Button>
-                {error ? <p className="text-sm text-[var(--destructive)]">{error}</p> : null}
-              </form>
-              <p className="mt-4 text-sm text-[var(--muted-foreground)]">
-                a@example.test / nest-a · b@example.test / nest-b · c@example.test / nest-c
-              </p>
-            </CardContent>
-          </Card>
-        </Page>
-      </Shell>
+      <Container size="xs" py={80}>
+        <Card shadow="sm" padding="xl" radius="md" withBorder>
+          <Badge mb="sm">Practice data · Mantine</Badge>
+          <Title order={1} mb="xs">Nest Egg</Title>
+          <Text c="dimmed" mb="lg">A projection, not financial advice. Sign in with a sample household.</Text>
+          <form onSubmit={signIn}>
+            <Stack>
+              <TextInput label="Email" type="email" value={email} onChange={(e) => setEmail(e.currentTarget.value)} />
+              <TextInput label="Password" type="password" value={password} onChange={(e) => setPassword(e.currentTarget.value)} />
+              <Button type="submit">Sign in</Button>
+              {error ? <Text c="red">{error}</Text> : null}
+            </Stack>
+          </form>
+          <Text size="sm" c="dimmed" mt="md">
+            a@example.test / nest-a · b@example.test / nest-b · c@example.test / nest-c
+          </Text>
+        </Card>
+      </Container>
     );
   }
 
   const home = bundle.household;
   return (
-    <Shell>
-      <Page>
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-5">
+    <Container size="lg" py="xl">
+      <Stack gap="md">
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Group justify="space-between" align="flex-start">
             <div>
-              <p className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Nest Egg</p>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {bundle.me.email} · <Badge className="align-middle">{bundle.me.role}</Badge> · server {health}
-              </p>
+              <Title order={1}>Nest Egg</Title>
+              <Text size="sm" c="dimmed" mt={4}>
+                {bundle.me.email} · <Badge size="sm">{bundle.me.role}</Badge> · server {health}
+              </Text>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => {
-                  document.documentElement.dataset.theme =
-                    document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-                }}
-              >
+            <Group>
+              <Button variant="default" onClick={() => setColorScheme(colorScheme === "dark" ? "light" : "dark")}>
                 Theme
               </Button>
               <Button
-                variant="secondary"
-                type="button"
+                variant="light"
                 onClick={async () => {
                   await send("/api/session", "DELETE");
                   setBundle(null);
@@ -140,32 +127,25 @@ export function Workspace() {
               >
                 Sign out
               </Button>
-            </div>
-          </CardContent>
+            </Group>
+          </Group>
         </Card>
 
-        <div className="flex flex-wrap gap-2">
-          {VIEWS.map((item) => (
-            <Button
-              key={item}
-              type="button"
-              variant={view === item ? "default" : "outline"}
-              aria-current={view === item ? "page" : undefined}
-              onClick={() => setView(item)}
-            >
-              {item}
-            </Button>
-          ))}
-        </div>
+        <SegmentedControl
+          value={view}
+          onChange={(value) => setView(value as (typeof VIEWS)[number])}
+          data={[...VIEWS]}
+          fullWidth
+        />
 
-        {error ? <p className="text-sm text-[var(--destructive)]">{error}</p> : null}
+        {error ? <Text c="red">{error}</Text> : null}
         {view === "Today" ? <Today home={home} /> : null}
         {view === "Snapshot" ? <SnapshotForm home={home} role={bundle.me.role} onDone={refresh} onError={setError} /> : null}
         {view === "Retire" ? <Retire home={home} /> : null}
         {view === "Compare" ? <Compare home={home} role={bundle.me.role} onDone={refresh} onError={setError} /> : null}
         {view === "Kids" ? <Kids home={home} /> : null}
-      </Page>
-    </Shell>
+      </Stack>
+    </Container>
   );
 }
 
@@ -195,22 +175,13 @@ function Today({ home }: { home: Bundle["household"] }) {
     })
     .join(" ");
   return (
-    <Card>
-      <CardHeader>
-        <CardDescription>Net worth today</CardDescription>
-        <CardTitle className="text-3xl">{formatUSD(home.netWorthCents)}</CardTitle>
-        <p className="text-sm text-[var(--muted-foreground)]">Change since first month: {formatUSD(last - first)}</p>
-      </CardHeader>
-      <CardContent>
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          role="img"
-          aria-label={`Net worth history from ${formatUSD(first)} to ${formatUSD(last)}`}
-          className="w-full text-[var(--primary)]"
-        >
-          <polyline fill="none" stroke="currentColor" strokeWidth="3" points={points} />
-        </svg>
-      </CardContent>
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Text size="sm" c="dimmed">Net worth today</Text>
+      <Title order={2}>{formatUSD(home.netWorthCents)}</Title>
+      <Text size="sm" c="dimmed" mb="md">Change since first month: {formatUSD(last - first)}</Text>
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Net worth history from ${formatUSD(first)} to ${formatUSD(last)}`} style={{ width: "100%", color: "var(--mantine-color-teal-7)" }}>
+        <polyline fill="none" stroke="currentColor" strokeWidth="3" points={points} />
+      </svg>
     </Card>
   );
 }
@@ -236,30 +207,23 @@ function SnapshotForm({
       }),
     ),
   );
-  const readOnly = role === "viewer";
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>This month</CardTitle>
-        <CardDescription>Update account balances for a snapshot month.</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        <Field label="Month">
-          <Input value={month} onChange={(e) => setMonth(e.target.value)} aria-label="Snapshot month" />
-        </Field>
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Title order={3} mb="xs">This month</Title>
+      <Text c="dimmed" size="sm" mb="md">Update account balances for a snapshot month.</Text>
+      <Stack>
+        <TextInput label="Month" value={month} onChange={(e) => setMonth(e.currentTarget.value)} />
         {home.accounts.map((account) => (
-          <Field key={account.id} label={account.name}>
-            <Input
-              inputMode="decimal"
-              aria-label={`${account.name} balance`}
-              value={balances[account.id] ?? ""}
-              onChange={(e) => setBalances({ ...balances, [account.id]: e.target.value })}
-            />
-          </Field>
+          <TextInput
+            key={account.id}
+            label={account.name}
+            inputMode="decimal"
+            value={balances[account.id] ?? ""}
+            onChange={(e) => setBalances({ ...balances, [account.id]: e.currentTarget.value })}
+          />
         ))}
         <Button
-          type="button"
-          disabled={readOnly}
+          disabled={role === "viewer"}
           onClick={async () => {
             onError("");
             for (const account of home.accounts) {
@@ -280,7 +244,7 @@ function SnapshotForm({
         >
           Save snapshot
         </Button>
-      </CardContent>
+      </Stack>
     </Card>
   );
 }
@@ -288,38 +252,27 @@ function SnapshotForm({
 function Retire({ home }: { home: Bundle["household"] }) {
   const plan = home.plans[0];
   const [age, setAge] = useState(plan?.retirementAges[home.people[0]?.id ?? ""] ?? 65);
-  const [spend, setSpend] = useState(plan ? String(plan.monthlySpendCents / 100) : "7000");
-  if (!plan) return <p>No plan yet.</p>;
+  const [spend, setSpend] = useState(plan ? plan.monthlySpendCents / 100 : 7000);
+  if (!plan) return <Text>No plan yet.</Text>;
   const trial: Plan = {
     ...plan,
     retirementAges: Object.fromEntries(home.people.map((person) => [person.id, age])),
-    monthlySpendCents: Math.round(Number(spend) * 100) || 0,
+    monthlySpendCents: Math.round(spend * 100) || 0,
   };
   const rows = project(home, trial);
   const lasts = moneyLastsUntil(rows, home.people);
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>When can we retire</CardTitle>
-        <CardDescription>A projection, not financial advice.</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <Field label={`Retirement age ${age}`}>
-          <input
-            className="w-full accent-[var(--primary)]"
-            type="range"
-            min={50}
-            max={80}
-            value={age}
-            aria-label="Retirement age"
-            onChange={(e) => setAge(Number(e.target.value))}
-          />
-        </Field>
-        <Field label="Monthly spending">
-          <Input inputMode="decimal" aria-label="Monthly spending" value={spend} onChange={(e) => setSpend(e.target.value)} />
-        </Field>
-        <p className="text-sm">Money lasts until age {lasts ?? "beyond this projection"}.</p>
-      </CardContent>
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Title order={3}>When can we retire</Title>
+      <Text c="dimmed" size="sm" mb="md">A projection, not financial advice.</Text>
+      <Stack>
+        <div>
+          <Text size="sm" mb={6}>Retirement age {age}</Text>
+          <Slider min={50} max={80} value={age} onChange={setAge} />
+        </div>
+        <NumberInput label="Monthly spending" value={spend} onChange={(value) => setSpend(Number(value) || 0)} min={0} />
+        <Text>Money lasts until age {lasts ?? "beyond this projection"}.</Text>
+      </Stack>
     </Card>
   );
 }
@@ -337,52 +290,49 @@ function Compare({
 }) {
   const [name, setName] = useState("");
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Compare plans</CardTitle>
-        <CardDescription>A projection, not financial advice.</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        <ul className="flex flex-col gap-2">
-          {home.plans.map((plan) => {
-            const rows = project(home, plan);
-            const at60 = rows.find((row) => row.ages[home.people[0]?.id ?? ""] === 60);
-            return (
-              <li key={plan.id} className="rounded-[calc(var(--radius)-4px)] bg-[var(--muted)] px-3 py-3 text-sm">
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Title order={3}>Compare plans</Title>
+      <Text c="dimmed" size="sm" mb="md">A projection, not financial advice.</Text>
+      <Stack>
+        {home.plans.map((plan) => {
+          const rows = project(home, plan);
+          const at60 = rows.find((row) => row.ages[home.people[0]?.id ?? ""] === 60);
+          return (
+            <Paper key={plan.id} withBorder p="sm" radius="md">
+              <Text size="sm">
                 <strong>{plan.name}</strong>: {at60 ? formatUSD(at60.netWorthCents) : "n/a"} at age 60
-              </li>
-            );
-          })}
-        </ul>
-        {!home.pro ? <p className="text-sm text-[var(--muted-foreground)]">A third plan unlocks with a sample Pro payment.</p> : null}
+              </Text>
+            </Paper>
+          );
+        })}
+        {!home.pro ? <Text size="sm" c="dimmed">A third plan unlocks with a sample Pro payment.</Text> : null}
         {role !== "viewer" ? (
-          <form
-            className="flex gap-2"
-            onSubmit={async (event) => {
-              event.preventDefault();
-              const result = await send("/api/records/plans", "POST", {
-                name,
-                retirementAges: Object.fromEntries(home.people.map((person) => [person.id, 67])),
-                monthlySavingCents: 100000,
-                monthlySpendCents: 500000,
-                yearlyReturnPercent: 4,
-                yearlyInflationPercent: 2,
-                events: [],
-              });
-              if (!result.ok) onError(result.payload?.error ?? "Could not add the plan");
-              else {
-                setName("");
-                await onDone();
-              }
-            }}
-          >
-            <Input aria-label="Plan name" value={name} onChange={(e) => setName(e.target.value)} />
-            <Button type="submit" variant="secondary">
+          <Group align="flex-end">
+            <TextInput style={{ flex: 1 }} label="Plan name" value={name} onChange={(e) => setName(e.currentTarget.value)} />
+            <Button
+              variant="light"
+              onClick={async () => {
+                const result = await send("/api/records/plans", "POST", {
+                  name,
+                  retirementAges: Object.fromEntries(home.people.map((person) => [person.id, 67])),
+                  monthlySavingCents: 100000,
+                  monthlySpendCents: 500000,
+                  yearlyReturnPercent: 4,
+                  yearlyInflationPercent: 2,
+                  events: [],
+                });
+                if (!result.ok) onError(result.payload?.error ?? "Could not add the plan");
+                else {
+                  setName("");
+                  await onDone();
+                }
+              }}
+            >
               Add plan
             </Button>
-          </form>
+          </Group>
         ) : null}
-      </CardContent>
+      </Stack>
     </Card>
   );
 }
@@ -390,27 +340,21 @@ function Compare({
 function Kids({ home }: { home: Bundle["household"] }) {
   if (!home.pro) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Kids&apos; savings</CardTitle>
-          <CardDescription>This screen unlocks with Pro. A projection, not financial advice.</CardDescription>
-        </CardHeader>
+      <Card shadow="sm" padding="lg" radius="md" withBorder>
+        <Title order={3}>Kids&apos; savings</Title>
+        <Text c="dimmed">This screen unlocks with Pro. A projection, not financial advice.</Text>
       </Card>
     );
   }
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Kids&apos; savings</CardTitle>
-        <CardDescription>A projection, not financial advice.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {home.kids.map((kid) => (
-          <p key={kid.id} className="mt-2 text-sm">
-            {kid.name}: {formatUSD(kidCurve(kid).at(-1)?.cents ?? 0)} at age {kid.targetAge}
-          </p>
-        ))}
-      </CardContent>
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Title order={3}>Kids&apos; savings</Title>
+      <Text c="dimmed" size="sm" mb="md">A projection, not financial advice.</Text>
+      {home.kids.map((kid) => (
+        <Text key={kid.id} mt="xs">
+          {kid.name}: {formatUSD(kidCurve(kid).at(-1)?.cents ?? 0)} at age {kid.targetAge}
+        </Text>
+      ))}
     </Card>
   );
 }

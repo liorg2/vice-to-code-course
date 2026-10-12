@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
+import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import { DM_Sans, Fraunces } from "next/font/google";
+import { NestProviders } from "@/components/providers";
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 import "./globals.css";
 
 const sans = DM_Sans({
@@ -19,8 +23,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    <html lang="en" className={`${sans.variable} ${display.variable} h-full`} {...mantineHtmlProps}>
+      <head>
+        <ColorSchemeScript defaultColorScheme="light" />
+      </head>
+      <body className="min-h-full">
+        <NestProviders>{children}</NestProviders>
+      </body>
     </html>
   );
 }

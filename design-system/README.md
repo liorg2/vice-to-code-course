@@ -1,9 +1,5 @@
-# Lab design system
+# Lab UI libraries
 
-Shared tokens and UI primitives for the Next.js labs.
-
-- `tokens.css` — CSS variables for light/dark and brand accents (`data-brand="crm"`)
-- `button.tsx`, `card.tsx`, `input.tsx`, `badge.tsx` — CVA + Tailwind primitives
-- Copied into `nest-egg/components/ds` and `pocket-crm/components/ds` so each app can build alone
-
-Primary brand is teal. Pocket CRM flips to sky via `data-brand="crm"` on `<html>`.
+- **Nest Egg** and **Pocket CRM**: [Mantine](https://mantine.dev/) (`@mantine/core`, `@mantine/hooks`, `@mantine/notifications`)
+- **Pocket Rates**: [React Native Paper](https://callstack.github.io/react-native-paper/)
+- **Forex Rates**: plain HTML page styled to match the Mantine teal palette (no React UI on that service)
