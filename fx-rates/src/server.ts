@@ -45,9 +45,13 @@ const page = `<!doctype html>
       padding: 0.25rem 0.7rem; font-size: 0.75rem; font-weight: 700; }
     h1 { margin: 0.75rem 0 0.35rem; font-family: Fraunces, Georgia, serif; font-size: 2rem; letter-spacing: -0.02em; }
     p { color: var(--muted); line-height: 1.5; }
-    a { display: block; margin: 0.6rem 0; padding: 0.85rem 1rem; border-radius: calc(var(--radius) - 4px);
-      background: var(--primary); color: #f4fffd; text-decoration: none; font-weight: 700; }
-    a.secondary { background: #e8eef2; color: var(--foreground); }
+    label { display: block; margin: 1rem 0 0.4rem; font-size: 0.85rem; font-weight: 700; }
+    input { width: 100%; padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: calc(var(--radius) - 4px);
+      background: #f7fafb; color: var(--foreground); font: inherit; font-size: 1.05rem; font-weight: 700; }
+    input:focus { outline: 2px solid var(--primary); border-color: var(--primary); background: #fff; }
+    #result { margin: 0.85rem 0 0; padding: 0.85rem 1rem; border-radius: calc(var(--radius) - 4px);
+      background: var(--primary); color: #f4fffd; font-weight: 700; }
+    #result.error { background: #e8eef2; color: var(--foreground); }
     code { background: #e8eef2; padding: 0.15rem 0.45rem; border-radius: 0.4rem; color: var(--foreground); }
   </style>
 </head>
@@ -55,11 +59,60 @@ const page = `<!doctype html>
   <main>
     <span class="badge">API · Mantine palette</span>
     <h1>Forex Rates</h1>
-    <p>A small public exchange-rate API. Try a live call:</p>
-    <a href="/v1/rates?base=USD&amp;symbols=EUR,ILS">USD to EUR and ILS</a>
-    <a class="secondary" href="/v1/convert?from=USD&amp;to=ILS&amp;amount=100">Convert 100 USD to ILS</a>
+    <p>Type a USD amount. The ILS result updates as you type.</p>
+    <label for="amount">Amount in USD</label>
+    <input id="amount" type="text" inputmode="decimal" value="100" autocomplete="off" />
+    <p id="result">Converting…</p>
     <p>Health: <code>/v1/health</code></p>
   </main>
+  <script>
+    const amount = document.querySelector("#amount");
+    const result = document.querySelector("#result");
+    let timer = 0;
+    let seq = 0;
+
+    function roundMoney(value) {
+      const sign = value < 0 ? -1 : 1;
+      const scaled = Math.round(Number((Math.abs(value) * 100).toFixed(8)));
+      return (sign * scaled) / 100;
+    }
+
+    function show(text, isError) {
+      result.textContent = text;
+      result.classList.toggle("error", isError);
+    }
+
+    async function convert() {
+      const raw = amount.value.trim();
+      const value = Number(raw);
+      if (!raw || !Number.isFinite(value) || value <= 0 || value >= 1000000000) {
+        show("Enter a positive amount below one billion.", true);
+        return;
+      }
+      const id = ++seq;
+      try {
+        const response = await fetch("/v1/rates?base=USD&symbols=EUR,ILS");
+        const body = await response.json();
+        if (id !== seq) return;
+        if (!response.ok) {
+          show(body.error?.message ?? "Could not load rates.", true);
+          return;
+        }
+        const ils = roundMoney(value * body.rates.ILS);
+        const eur = roundMoney(value * body.rates.EUR);
+        show(value + " USD = " + ils.toFixed(2) + " ILS · " + eur.toFixed(2) + " EUR", false);
+      } catch {
+        if (id !== seq) return;
+        show("Could not reach the API.", true);
+      }
+    }
+
+    amount.addEventListener("input", () => {
+      clearTimeout(timer);
+      timer = setTimeout(convert, 200);
+    });
+    convert();
+  </script>
 </body>
 </html>`;
 
