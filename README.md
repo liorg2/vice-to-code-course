@@ -9,22 +9,14 @@ Finished practice projects from the course, one folder each. They use fake data 
 | `pocket-rates` | Pocket Rates, the Expo currency app. |
 | `fx-rates` | Forex Rates API. Runs locally. `template.yaml` is the AWS stack, and nothing deploys until you approve it. |
 | `production-drills` | The eight production drills, written against Nest Egg's practice data. |
-| `agent-skills/` | Free engineering skills pack (Addy Osmani), used by the Forex lab. |
-| `skills/lab-check/` | End-of-step `/lab-check` skill for the app labs. |
 
 Each app has its own `npm install` and `npm run check`. You can run one app on your machine, or start the set with Docker.
 
-## Free skills (Claude, Cursor, Codex)
+## Agent skills
 
-See **[SKILLS.md](./SKILLS.md)** for install steps in Claude Code, Cursor, and Codex. Short version:
+Course skills (including `lab-check`) live in [liorg2/vibe-to-code-skills](https://github.com/liorg2/vibe-to-code-skills) on `main`. Copy `lab-check/SKILL.md` into your agent's skills folder, or install from that repo.
 
-```bash
-# any agent
-npx skills add addyosmani/agent-skills
-
-# or use the copy in this repo (Claude Code)
-claude --plugin-dir ./agent-skills
-```
+For a broader free engineering pack: `npx skills add addyosmani/agent-skills`.
 
 ## On your machine
 
